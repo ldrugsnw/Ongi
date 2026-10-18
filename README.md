@@ -42,3 +42,8 @@ Soft colored-pencil illustrations, warm lighting, seasonal scenery, and gentle a
 The core interactive experience is implemented.
 
 Further improvements will focus on performance, stability, and overall user experience.
+
+
+## Preview
+
+![Ongi Demo](./docs/images/ongi-demo.gif)
