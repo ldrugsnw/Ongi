@@ -1,62 +1,44 @@
-# 온기 · 겨울 찻집
 
-계절 4종과 음료 3종을 선택할 수 있는 React + TypeScript + Vite 찻집 시제품입니다.
-기존 프로젝트와 적용할 AGENTS.md는 없었습니다. 로그인, DB, 타이머 등은 포함하지 않습니다.
+# Ongi (온기) ☕
 
-## 실행
+A cozy, interactive web space for studying, relaxing, and enjoying peaceful moments.
 
-```sh
-npm install
-npm run dev
-```
+Ongi is a personal web project designed to create a warm and comfortable atmosphere through seasonal illustrations, ambient sounds, and subtle animations.
 
-터미널에 표시되는 주소(기본 `http://localhost:5173`)로 접속하세요.
-같은 Wi-Fi의 iPad에서는 터미널의 Network 주소로 접속할 수 있습니다.
+## Features
 
-```sh
-npm run build
-npm run preview
-```
+- **Seasonal Scenery** — Switch between illustrated seasonal backgrounds
+- **Ambient Sounds** — Enjoy relaxing fireplace sounds with volume controls
+- **Interactive Drinks** — Choose different drinks to match your mood
+- **Subtle Animations** — Steam, snowfall, and fireplace lighting effects
+- **Smooth Transitions** — Gentle fade transitions between scenes
+- **Responsive Design** — Optimized for desktop, tablet, and mobile screens
+- **Accessibility** — Reduced-motion support and audio controls
 
-## 이미지와 효과
+## Tech Stack
 
-- 계절 배경: `public/assets/backgrounds/`의 `early-autumn.png`, `autumn.png`, `early-winter.png`, `snowy-winter.png`. 원래 컵이 그려진 `winter-house.png`는 최종 대체 이미지로 사용합니다.
-- 음료: `public/assets/drinks/`의 `coffee.png`, `cocoa.png`, `yuja_tea.png`. 파일명과 PNG 크기·투명 여백 보정 좌표는 `src/customization.ts`에서 설정합니다. 음료의 공통 배치 영역은 `src/PersonalScene.tsx`의 원본 좌표 `(1000, 606)`, 크기 `374 × 278`이며, 비율을 유지하고 아래쪽을 맞춥니다.
-- 원본은 1672 × 941입니다. 그림 전체를 유지하는 contain 방식으로 표시합니다. 화면 비율이 다르면 갈색 여백이 생기며, 이미지와 효과는 같은 좌표계를 사용합니다.
-- 새 그림의 구도나 크기가 달라지면 `src/scene.ts`의 `width`, `height`, `cup`, `fire`, `panes`, `foreground`도 조정하세요. 좌표 단위는 원본 이미지의 픽셀입니다.
-- `panes`는 창틀 안쪽의 네 유리 영역, `foreground`는 눈이 덮으면 안 되는 실내 조명·식물·작은 집·가지의 보수적인 제외 영역입니다. 가지 주변은 여유 있게 눈을 제외했습니다.
-- 계절용 배경은 음료가 없는 그림입니다. 음료 PNG 위에 기존 김 효과를 유지하며, 추가 눈은 눈 오는 겨울에만, 낙엽은 가을에만 보입니다. 초가을·초겨울에는 창밖 파티클을 표시하지 않습니다. 최종 대체용 원래 그림에는 김과 눈이 그려져 있습니다.
-- 김·불빛 속도: `src/scene.ts`의 `steamSeconds`(10초), `fireSeconds`(3초). 값을 늘리면 느려집니다.
-- 겨울 눈: `src/snow.ts`의 `snowOptions`로 조절합니다. 기본 `count: 22`, 반지름 `1.7~5.6`, 낙하 속도 `13~28` 원본 픽셀/초, 최대 좌우 흔들림 `7` 원본 픽셀입니다. `count`는 15~25 정도에서 조절하고, 더 느리게 하려면 속도 값을 줄이세요.
-- 가을 낙엽: `src/leaves.ts`의 `leafOptions`로 조절합니다. 기본 12장, 반지름 8~19 원본 픽셀, 낙하 속도 8~17 원본 픽셀/초, 최대 흔들림 16 원본 픽셀입니다. 개수는 8~15장 정도에서 조절하세요. 단풍잎과 길쭉한 잎을 4가지 색상·2가지 깊이로 사전 렌더링해 음영·잎맥·옅은 색연필 결을 캐싱합니다.
-- 눈과 낙엽은 `src/windowParticles.ts`의 창문 마스크·contain 정렬·프레임/리스너 정리를 공유하고, 한 Canvas에서 계절별로 전환합니다. 프레임 동안 React 상태는 갱신하지 않습니다.
-- 눈은 Canvas 2D와 requestAnimationFrame을 사용합니다. 아이보리 중심·회청색 가장자리의 radial gradient와 가까운 눈의 윤곽·미세 질감은 5종 스프라이트로 캐싱합니다. 창문 Path2D 마스크는 화면 크기가 바뀌어도 같은 원본 좌표로 정렬합니다. 눈 오는 겨울 외의 계절과 움직임 줄이기 상태에서는 프레임을 실행하지 않으며, 숨겨진 탭에서도 일시 정지합니다.
-- 김의 선명도는 `src/style.css`의 `steam-rise` 불투명도와 SVG의 선 두께로 조절합니다. 벽난로는 주변 빛(`fire-breathe`)과 유리 안쪽 빛(`fire-flicker`)을 별도로 조절합니다. 안쪽 빛은 `src/scene.ts`의 `fireOpening` 영역으로 제한됩니다.
-- 효과의 밝기·이동량은 `src/style.css`의 keyframes와 `src/main.tsx`의 SVG에서 조절합니다.
+- TypeScript
+- Vite
+- HTML5 Canvas
+- CSS
 
-## 소리와 접근성
+## Project Goals
 
-- 사용자가 추가한 `public/audio/269062__nebulousflynn__wood-burning-stove.wav`가 연결되어 있습니다. 외부 음원은 가져오지 않습니다.
-- 다른 파일은 `src/scene.ts`의 `audio` 경로를 변경해 연결하세요. `public/` 아래 파일은 URL에 `public/`을 붙이지 않습니다.
-- 소리 켜기를 눌러야 재생합니다. 반복 재생, 켜기·끄기, 0~100% 볼륨을 지원합니다. 재생 실패 시 안내만 표시하고 화면은 유지합니다.
-- 기본 화면에서는 오른쪽 아래 스피커와 공간 꾸미기 버튼이 보입니다. 버튼을 누르면 소리·볼륨·움직임 설정이 위로 펼쳐지고, 같은 버튼·패널 바깥 클릭/터치·Escape로 닫힙니다. Tab으로 설정 영역을 벗어나도 닫힙니다. Escape로 닫으면 스피커 버튼으로 포커스가 돌아옵니다.
-- 접힌 버튼의 스피커 모양·갈색 바탕·꿀색 표시점으로 소리 재생 상태를 구분합니다. 로고는 배경 그림의 실제 표시 영역 안쪽 왼쪽 상단에 있습니다.
-- 모든 주요 조작의 터치 영역은 44px 이상입니다. 키보드와 스크린리더로도 조작할 수 있습니다.
-- 움직임 줄이기를 켜면 추가 눈과 김을 숨기고 벽난로 빛을 고정합니다. 기기의 `prefers-reduced-motion` 설정이 켜져 있으면 자동으로 적용되며 화면에서 해제할 수 없습니다.
+- Create a peaceful digital space for studying and relaxation
+- Explore interactive visual effects and animations
+- Build an immersive experience with illustrations and ambient audio
+- Provide a comfortable experience across different devices
 
-## 공간 선택과 저장
+## Design Concept
 
-- 스피커 왼쪽의 공간 꾸미기 버튼으로 계절·음료를 선택합니다. 바깥 클릭/터치, 같은 버튼, Escape로 닫고 키보드 방향키로 선택할 수 있습니다.
-- 선택 이미지를 로드하고 디코딩한 뒤 배경과 음료를 함께 약 1초간 크로스페이드합니다. 전환 중에는 추가 선택을 잠시 막아 겹치는 전환을 방지합니다. 움직임 줄이기 상태에서는 즉시 교체합니다.
-- localStorage의 `ongi.preferences.v1`에 성공적으로 표시된 선택을 저장합니다. 저장값이 없거나 잘못되면 눈 오는 겨울 + 유자차를 사용합니다. 저장소 접근 실패도 화면을 중단하지 않습니다.
-- 선택 이미지가 실패하면 해당 기본 이미지로 대체합니다. 기본 이미지도 실패하면 원래 컵 포함 그림으로 대체하고 추가 컵은 숨깁니다. 모든 이미지가 실패하면 현재 그림을 유지합니다.
+Ongi (온기) means "warmth" in Korean.
 
-## 검증
+The project is inspired by the feeling of sitting in a small, cozy tea house on a cold day.
 
-```sh
-npm test
-```
+Soft colored-pencil illustrations, warm lighting, seasonal scenery, and gentle ambient sounds come together to create a calm and welcoming atmosphere.
 
-Node 22.6 이상이 필요합니다. 추가 라이브러리 없이 Node 기본 테스트 실행기로 저장값 검증·대체 이미지·로딩 완료 대기 및 눈/낙엽의 이동·창문 좌표·캐시·정리·계절 반복 전환을 검사합니다.
+## Status
 
-검증 결과는 `verification/RESULTS.md`에 기록합니다. 실제 iPad Safari와 실제 환경음의 최종 확인은 기기 및 사용 권한이 있는 음원으로 진행하세요.
+The core interactive experience is implemented.
+
+Further improvements will focus on performance, stability, and overall user experience.
