@@ -21,11 +21,13 @@ export function TimerDialogs({ view, actions, resetSessionId, onCancelReset }: P
     const dialog = dialogRef.current;
     if (!dialog || !kind) return;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const fallback = previous?.closest('.ongi-timer')?.querySelector<HTMLButtonElement>('.ongi-timer-toggle');
     if (!dialog.open) dialog.showModal();
     initialRef.current?.focus();
     return () => {
       if (dialog.open) dialog.close();
       if (previous?.isConnected && !previous.closest('[hidden], [inert]')) previous.focus();
+      else if (fallback?.isConnected) fallback.focus();
     };
   }, [kind, sessionId]);
 
@@ -36,7 +38,17 @@ export function TimerDialogs({ view, actions, resetSessionId, onCancelReset }: P
   };
   return createPortal(<dialog className="ongi-timer-dialog" ref={dialogRef} aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`}
     onCancel={event => { event.preventDefault(); event.stopPropagation(); dismiss(); }}
-    onKeyDown={event => { event.stopPropagation(); if (event.key === 'Escape') { event.preventDefault(); dismiss(); } }}>
+    onKeyDown={event => {
+      event.stopPropagation();
+      if (event.key === 'Escape') { event.preventDefault(); dismiss(); }
+      if (event.key === 'Tab') {
+        const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    }}>
     <div className="ongi-timer-heading">
       <h2 id={`${id}-title`}>{kind === 'completion' ? `${focusCompletion ? '집중' : '휴식'} 시간이 끝났어요` : '타이머를 초기화할까요?'}</h2>
       <button type="button" className="ongi-timer-close" aria-label={kind === 'completion' ? '완료 안내 닫기' : '초기화 취소'} onClick={dismiss}>×</button>
