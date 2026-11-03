@@ -1,7 +1,7 @@
-# Ongi 2.0 타이머 공유 계약 — 체크포인트 1
+# Ongi 2.0 타이머 공유 계약
 
-상태: Integrator가 확정한 구현 계약. Agent A는 이 계약을 구현하고 B·C는 다음 단계에서 소비한다.
-사용자가 승인한 정책을 유지하며, 브라우저 런타임과 UI 구현은 이번 체크포인트에 포함하지 않는다.
+상태: 체크포인트 1에서 확정하고 체크포인트 2에서 A·B·C 구현과 통합에 적용한 계약.
+사용자가 승인한 타입과 동작 정책을 유지한다. 아래의 단계별 소유권과 계약은 실제 구현의 기준이다.
 
 ## 소유권
 
@@ -93,7 +93,7 @@ export function saveSnapshot(storage: Pick<Storage, 'setItem'>, snapshot: TimerS
 
 ## B·C 경계 계약 (다음 단계)
 
-다음 타입은 이번 단계에서 런타임 파일로 구현하지 않고 계약으로만 유지한다.
+다음 타입은 체크포인트 2에서 `controller.ts`가 export하고 UI가 type import로 소비한다.
 
 ```ts
 type TimerView = {
@@ -150,4 +150,6 @@ type TimerController = {
 
 A는 새 테스트와 기존 전체 `npm test`, `npm run build`를 실행한다. 의존성이 없으면 lockfile을 유지하여 npm ci로 설치한다.
 각 명령의 종료 코드, 테스트 개수, 변경 파일, commit hash, 남은 문제를 한국어로 보고한다.
-Integrator가 결과를 검토한 뒤 feature worktree로 통합하고 체크포인트 기록을 작성한다. B·C는 실행하지 않는다.
+Integrator가 결과를 검토한 뒤 feature worktree로 통합하고 체크포인트 기록을 작성한다. 체크포인트 1은 A까지만, 승인된 체크포인트 2는 B·C와 기존 앱 통합까지만 진행한다.
+
+체크포인트 2에서 타입 계약은 변경하지 않았다. ID 생성은 randomUUID 미지원 환경에서도 동작하도록 보완했고, native dialog에 명시적인 Tab 순환을 추가했다. 상세 결과와 브라우저 검증 범위는 `timer-checkpoint-2.md`에 기록한다.
