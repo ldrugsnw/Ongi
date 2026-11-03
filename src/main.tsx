@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState, type CSSProperties } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
 import { scene } from './scene';
 import { SceneLayer, usePersonalScene } from './PersonalScene';
 import { CustomizeControls } from './CustomizeControls';
+import { FocusTimer } from './timer/FocusTimer';
 import { SeasonalParticles } from './SeasonalParticles.tsx';
 import './style.css';
 
@@ -61,7 +62,11 @@ function App() {
   const [volume, setVolume] = useState(35);
   const [message, setMessage] = useState('');
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [openPanel, setOpenPanel] = useState<'environment' | 'customize' | 'timer' | null>(null);
+  const panelOpen = openPanel === 'environment';
+  const setPanelOpen = useCallback((open: boolean) => setOpenPanel(current => open ? 'environment' : current === 'environment' ? null : current), []);
+  const setCustomizeOpen = useCallback((open: boolean) => setOpenPanel(current => open ? 'customize' : current === 'customize' ? null : current), []);
+  const setTimerOpen = useCallback((open: boolean) => setOpenPanel(current => open ? 'timer' : current === 'timer' ? null : current), []);
   const controlsRef = useRef<HTMLElement>(null);
   const panelButtonRef = useRef<HTMLButtonElement>(null);
   const soundButtonRef = useRef<HTMLButtonElement>(null);
@@ -79,7 +84,7 @@ function App() {
       }
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !event.defaultPrevented && !document.querySelector('dialog[open]')) {
         event.preventDefault();
         setPanelOpen(false);
         panelButtonRef.current?.focus();
@@ -91,7 +96,7 @@ function App() {
       document.removeEventListener('pointerdown', closeOutside);
       document.removeEventListener('keydown', closeOnEscape);
     };
-  }, [panelOpen]);
+  }, [panelOpen, setPanelOpen]);
 
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume / 100;
@@ -162,14 +167,16 @@ function App() {
         {systemMotion && <p className="system-note">기기의 움직임 줄이기 설정이 적용되어 있어요.</p>}
         {message && <p className="sound-message" role="status">{message}</p>}
       </div>
-      <button ref={panelButtonRef} className={`panel-toggle${playing ? ' is-playing' : ''}`} onClick={() => setPanelOpen(open => !open)}
+      <button ref={panelButtonRef} className={`panel-toggle${playing ? ' is-playing' : ''}`} onClick={() => setPanelOpen(!panelOpen)}
         aria-expanded={panelOpen} aria-controls="environment-panel"
         aria-label={`${panelOpen ? '환경 설정 닫기' : '환경 설정 열기'} · 소리 ${playing ? '켜짐' : '꺼짐'}`}>
         <SoundIcon playing={playing} />
         {playing && <span className="sound-indicator" aria-hidden="true" />}
       </button>
     </section>
-    <CustomizeControls current={personal.current} busy={personal.busy} loading={personal.loading} notice={personal.notice} choose={personal.choose} />
+    <CustomizeControls current={personal.current} busy={personal.busy} loading={personal.loading} notice={personal.notice} choose={personal.choose}
+      open={openPanel === 'customize'} onOpenChange={setCustomizeOpen} />
+    <FocusTimer open={openPanel === 'timer'} onOpenChange={setTimerOpen} />
     <audio ref={audioRef} src={scene.audio} loop preload="none" onPause={() => setPlaying(false)} onError={() => { setPlaying(false); }} />
   </main>;
 }

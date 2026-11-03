@@ -27,6 +27,12 @@ button:disabled { cursor: wait; opacity: .7; }
 .reduced-motion .scene-layer.entering { animation: none; }
 .controls.customize-controls { right: max(78px, calc(env(safe-area-inset-right) + 58px)); }
 .customize-controls .customize-panel { right: -58px; }
+/* Keep the timer aligned with the existing two café controls at each breakpoint. */
+.teahouse > .ongi-timer {
+  right: max(136px, calc(env(safe-area-inset-right) + 116px));
+  bottom: max(20px, env(safe-area-inset-bottom));
+}
+.teahouse > .ongi-timer .ongi-timer-panel { right: -116px; }
 .customize-panel fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
 .customize-panel legend { margin-bottom: 8px; font-size: 12px; color: #624735; }
 .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -171,10 +177,12 @@ button:disabled { cursor: wait; opacity: .7; }
   .identity-note { font-size: 10px; }
   .controls { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
   .controls.customize-controls { right: max(74px, calc(env(safe-area-inset-right) + 58px)); }
+  .teahouse > .ongi-timer { right: max(132px, calc(env(safe-area-inset-right) + 116px)); bottom: max(16px, env(safe-area-inset-bottom)); }
   .control-panel { width: min(216px, calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right))); padding: 12px; }
 }
 @media (max-height: 480px) and (orientation: landscape) {
   .identity { top: 10px; left: 12px; }
   .controls { bottom: max(12px, env(safe-area-inset-bottom)); }
+  .teahouse > .ongi-timer { bottom: max(12px, env(safe-area-inset-bottom)); }
   .control-panel { padding: 10px 12px; gap: 6px; }
 }
