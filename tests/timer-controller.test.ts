@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { harness, running } from './timer-runtime-harness.ts';
 import { createBrowserRuntimeDeps } from '../src/timer/useFocusTimer.ts';
+import { createTimerController } from '../src/timer/controller.ts';
 
 test('view reference changes only with observable state; no-op settings do not write', () => {
   const h = harness();
@@ -217,3 +218,63 @@ test('browser adapter removes exact lifecycle handlers and cancels its timer', (
     }
   }
 });
+
+test('browser adapter uses randomUUID when available', () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  const crypto = { randomUUID() { assert.equal(this, crypto); return 'native-uuid'; } };
+  Object.defineProperty(globalThis, 'crypto', { configurable: true, value: crypto });
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { localStorage: null } });
+  try { assert.equal(createBrowserRuntimeDeps().createSessionId(), 'native-uuid'); }
+  finally {
+    if (original) Object.defineProperty(globalThis, 'crypto', original);
+    else Reflect.deleteProperty(globalThis, 'crypto');
+    if (originalWindow) Object.defineProperty(globalThis, 'window', originalWindow);
+    else Reflect.deleteProperty(globalThis, 'window');
+  }
+});
+
+test('browser Start works without randomUUID using getRandomValues and distinct replacement IDs', () => {
+  let randomCalls = 0;
+  verifyFallbackStarts({ getRandomValues(bytes: Uint8Array) { randomCalls++; bytes.fill(42); return bytes; } });
+  assert.equal(randomCalls, 2);
+});
+
+test('browser Start works when crypto is absent or both crypto methods fail', () => {
+  verifyFallbackStarts(undefined);
+  verifyFallbackStarts({
+    randomUUID() { throw Error('unavailable'); },
+    getRandomValues() { throw Error('unavailable'); },
+  });
+});
+
+function verifyFallbackStarts(crypto: unknown) {
+  const descriptors = ['window', 'document', 'crypto'].map(key =>
+    [key, Object.getOwnPropertyDescriptor(globalThis, key)] as const);
+  const target = { addEventListener() {}, removeEventListener() {} };
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: {
+    ...target, localStorage: null, setTimeout: () => 1, clearTimeout() {},
+  } });
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: { ...target, visibilityState: 'visible' } });
+  Object.defineProperty(globalThis, 'crypto', { configurable: true, value: crypto });
+  const controller = createTimerController(createBrowserRuntimeDeps());
+  try {
+    controller.start();
+    assert.doesNotThrow(() => controller.actions.startFocus());
+    const first = controller.getView().snapshot.timer;
+    assert.equal(first.status, 'running');
+    if (first.status !== 'running') assert.fail('Start must create a running session');
+    assert.match(first.session.id, /^ongi-.+/);
+    controller.actions.confirmReset(first.session.id);
+    controller.actions.startFocus();
+    const second = controller.getView().snapshot.timer;
+    assert.equal(second.status, 'running');
+    if (second.status === 'running') assert.notEqual(second.session.id, first.session.id);
+  } finally {
+    controller.dispose();
+    for (const [key, descriptor] of descriptors) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+      else Reflect.deleteProperty(globalThis, key);
+    }
+  }
+}
